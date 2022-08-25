@@ -53,11 +53,11 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < pageCount; i++) {
             PdfRenderer.Page page = renderer.openPage(i);
 
-            Bitmap bitmap = Bitmap.createBitmap(200*page.getWidth(), 200*page.getHeight(), Bitmap.Config.ARGB_8888);
+            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
 
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_PRINT);
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             File output = this.saveImage(bitmap, reactContext.getCacheDir());
             page.close();
 
@@ -97,11 +97,11 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < pageCount; i++) {
             PdfRenderer.Page page = renderer.openPage(i);
 
-            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+            Bitmap bitmap = Bitmap.createBitmap(200*page.getWidth(), 200*page.getHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
 
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_PRINT);
             File output = this.saveImage(bitmap, reactContext.getCacheDir());
             page.close();
 
