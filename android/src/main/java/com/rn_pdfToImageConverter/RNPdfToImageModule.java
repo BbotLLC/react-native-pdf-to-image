@@ -76,7 +76,7 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void convertB64(String base64String, Promise promise) {
+  public void convertB64(String base64String, int dpi, Promise promise) {
     try {
         WritableMap map = Arguments.createMap();
         WritableArray files = Arguments.createArray();
@@ -97,7 +97,7 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < pageCount; i++) {
             PdfRenderer.Page page = renderer.openPage(i);
 
-            Bitmap bitmap = Bitmap.createBitmap(200*page.getWidth(), 200*page.getHeight(), Bitmap.Config.ARGB_8888);
+            Bitmap bitmap = Bitmap.createBitmap(dpi*page.getWidth()/72, dpi*page.getHeight()/72, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
 
