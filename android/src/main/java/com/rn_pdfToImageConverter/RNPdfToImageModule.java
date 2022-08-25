@@ -19,6 +19,7 @@ import com.facebook.react.bridge.WritableArray;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Base64;
 
 public class RNPdfToImageModule extends ReactContextBaseJavaModule {
 
@@ -68,6 +69,52 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
         promise.resolve(map);
 
         renderer.close();
+
+    } catch(Exception e) {
+        promise.reject(E_CONVERT_ERROR, e);
+    }
+  }
+
+  @ReactMethod
+  public void convertB64(String base64String, Promise promise) {
+    try {
+        WritableMap map = Arguments.createMap();
+        WritableArray files = Arguments.createArray();
+
+        File cacheDir = reactContext.getCacheDir();
+        File file = File.createTempFile("pdfToImage", "pdf", cacheDir);
+        file.setWritable(true);
+        FileOutputStream fos = new FileOutputStream(file);
+        byte[] decoder = Base64.getDecoder().decode(base64String);
+        fos.write(decoder);
+
+        ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+
+        PdfRenderer renderer = new PdfRenderer(parcelFileDescriptor);
+
+        final int pageCount = renderer.getPageCount();
+
+        for (int i = 0; i < pageCount; i++) {
+            PdfRenderer.Page page = renderer.openPage(i);
+
+            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(Color.WHITE);
+
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            File output = this.saveImage(bitmap, reactContext.getCacheDir());
+            page.close();
+
+            files.pushString(output.getAbsolutePath());
+        }
+
+        map.putArray("outputFiles", files);
+
+        promise.resolve(map);
+
+        renderer.close();
+
+        file.delete();
 
     } catch(Exception e) {
         promise.reject(E_CONVERT_ERROR, e);

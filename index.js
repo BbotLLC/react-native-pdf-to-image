@@ -3,4 +3,7 @@ import { NativeModules } from 'react-native';
 
 const { RNPdfToImage } = NativeModules;
 
-export default RNPdfToImage;
+export default {
+  convert: RNPdfToImage.convert,
+  convertB64: RNPdfToImage.convertB64
+};
