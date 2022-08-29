@@ -1,5 +1,6 @@
 package com.RNPdfToImageConverter;
 
+import android.util.Log;
 import android.widget.Toast;
 import android.net.Uri;
 
@@ -17,13 +18,22 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Base64;
 
 public class RNPdfToImageModule extends ReactContextBaseJavaModule {
 
   private static final String E_CONVERT_ERROR = "E_CONVERT_ERROR";
+
+  private static final String TAG = "PNPdf";
 
   private final ReactApplicationContext reactContext;
 
@@ -35,6 +45,43 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
   @Override
   public String getName() {
     return "RNPdfToImage";
+  }
+
+  @ReactMethod printPDF(String ipAddress, Integer portNumber, String pdfBase64String, Promise promise) {
+      DataOutputStream outToServer;
+      Socket clientSocket;
+      try {
+          File cacheDir = reactContext.getCacheDir();
+          File file = File.createTempFile("pdfToImage", "pdf", cacheDir);
+          file.setWritable(true);
+          FileOutputStream fos = new FileOutputStream(file);
+          byte[] decoder = Base64.getDecoder().decode(pdfBase64String);
+          fos.write(decoder);
+
+
+          FileInputStream fileInputStream = new FileInputStream(file);
+          InputStream is =fileInputStream;
+          clientSocket = new Socket(ipAddress, portNumber);
+          outToServer = new DataOutputStream(clientSocket.getOutputStream());
+          byte[] buffer = new byte[3000];
+          while (is.read(buffer) !=-1){
+              outToServer.write(buffer);
+          }
+          outToServer.flush();
+          return 1;
+      }catch (ConnectException connectException){
+          Log.e(TAG, connectException.toString(), connectException);
+          return -1;
+      }
+      catch (UnknownHostException e1) {
+          Log.e(TAG, e1.toString(), e1);
+          return 0;
+      } catch (IOException e1) {
+          Log.e(TAG, e1.toString(), e1);
+          return 0;
+      }finally {
+          outToServer.close();
+      }
   }
 
   @ReactMethod
