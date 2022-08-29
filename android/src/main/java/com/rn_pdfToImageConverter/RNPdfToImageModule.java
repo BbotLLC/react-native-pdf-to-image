@@ -47,7 +47,8 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
     return "RNPdfToImage";
   }
 
-  @ReactMethod printPDF(String ipAddress, Integer portNumber, String pdfBase64String, Promise promise) {
+  @ReactMethod
+  public void printPDF(String ipAddress, Integer portNumber, String pdfBase64String, Promise promise) {
       DataOutputStream outToServer;
       Socket clientSocket;
       try {
@@ -68,19 +69,19 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
               outToServer.write(buffer);
           }
           outToServer.flush();
-          return 1;
+          promise.resolve(1);
       }catch (ConnectException connectException){
           Log.e(TAG, connectException.toString(), connectException);
-          return -1;
+          promise.reject(connectException.toString(), connectException.getLocalizedMessage());
       }
       catch (UnknownHostException e1) {
           Log.e(TAG, e1.toString(), e1);
-          return 0;
+          promise.reject(e1.toString(), e1.getLocalizedMessage());
       } catch (IOException e1) {
           Log.e(TAG, e1.toString(), e1);
-          return 0;
+          promise.reject(e1.toString(), e1.getLocalizedMessage());
       }finally {
-          outToServer.close();
+        outToServer.close();
       }
   }
 
