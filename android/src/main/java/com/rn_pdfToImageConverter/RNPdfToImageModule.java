@@ -97,7 +97,7 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < pageCount; i++) {
             PdfRenderer.Page page = renderer.openPage(i);
 
-            Bitmap bitmap = Bitmap.createBitmap(dpi*page.getWidth()/72, dpi*page.getHeight()/72, Bitmap.Config.ARGB_8888);
+            Bitmap bitmap = Bitmap.createBitmap(dpi, dpi*page.getHeight()/page.getWidth(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
 
