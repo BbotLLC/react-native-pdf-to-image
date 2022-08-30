@@ -49,7 +49,7 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void printPDF(String ipAddress, Integer portNumber, String pdfBase64String, Promise promise) {
-      DataOutputStream outToServer;
+      DataOutputStream outToServer = null;
       Socket clientSocket;
       try {
           File cacheDir = reactContext.getCacheDir();
@@ -80,8 +80,10 @@ public class RNPdfToImageModule extends ReactContextBaseJavaModule {
       } catch (IOException e1) {
           Log.e(TAG, e1.toString(), e1);
           promise.reject(e1.toString(), e1.getLocalizedMessage());
-      }finally {
-        outToServer.close();
+      } finally {
+          if(outToServer != null){
+              outToServer.close();
+          }
       }
   }
 
